@@ -1,0 +1,31 @@
+rm(list=ls())
+set.seed(694)
+
+data <- read.table("germancredit.txt", header=FALSE)
+
+data$V21[data$V21==1]<-0
+data$V21[data$V21==2]<-1
+
+split <- initial_split(data, prop=0.7) #70/30 split of the train/test data respectively
+train <- training(split)
+test <- testing(split)
+
+m1 <- glm(formula = V21 ~ ., data=train, family=binomial(link="logit"))
+
+#summary(m1)
+
+m2 <- glm(formula=V21 ~ V1+V4+V5+V6+V8, data=train, family=binomial(link="logit"))
+
+summary(m2)
+
+mPred <- predict(m2, test, type="response")
+#mPred
+
+finalResponse <- as.integer(mPred>0.5) #round to 0 or 1 based around 0.5
+#finalResponse
+
+confusionMatrix <- table(finalResponse,test$V21)
+#confusionMatrix
+
+accuracy = (34+188)/(188+51+27+34)
+#accuracy

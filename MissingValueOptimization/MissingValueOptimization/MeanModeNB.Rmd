@@ -1,0 +1,30 @@
+rm(list = ls())
+
+data <- read.csv("breast-cancer-wisconsin.data.txt", header=FALSE, na.strings="?")
+originalData <- data$V7
+data[is.na(data)] <- mean(data$V7, na.rm = TRUE)
+
+
+data2 <- read.csv("breast-cancer-wisconsin.data.txt", header=FALSE, na.strings="?")
+data2[is.na(data2)] <- as.numeric(names(which.max(table(data2$V7))))
+
+imputedValues <- data.frame(
+  originalData, 
+  meanData <- data$V7,
+  modeData <- data2$V7
+)
+
+h1 <- ggplot(imputedValues, aes(x = originalData)) +
+  geom_histogram(fill = "#ad1538", color = "#000000", position = "identity", bins=8) +
+  ggtitle("Original distribution") + stat_bin(aes(label=..count..), geom="text", bins=8,         position=position_stack(vjust=0.5)) +
+  theme_classic()
+h2 <- ggplot(imputedValues, aes(x = meanData)) +
+  geom_histogram(fill = "#15ad4f", color = "#000000", position = "identity", bins=8) +
+  ggtitle("Mean-imputed distribution") + stat_bin(aes(label=..count..), geom="text", bins=8,         position=position_stack(vjust=0.5)) +
+  theme_classic()
+h3 <- ggplot(imputedValues, aes(x = modeData)) +
+  geom_histogram(fill = "#ad8415", color = "#000000", position = "identity", bins=8) +
+  ggtitle("Mode-imputed distribution") + stat_bin(aes(label=..count..), geom="text", bins=8,         position=position_stack(vjust=0.5)) +
+  theme_classic()
+
+ggarrange(h1, h2, h3, ncol=1, nrow=3)

@@ -1,0 +1,23 @@
+rm(list = ls())
+library(kknn)
+library(splitTools)
+set.seed(694)
+
+data <- read.table("credit_card_data.txt", stringsAsFactors = FALSE, header = FALSE)
+
+kmax <- 25
+acc <- rep(0,kmax)
+
+for (X in 1:kmax){
+  model <- cv.kknn(V11~V1+V2+V3+V4+V5+V6+V7+V8+V9+V10, data=data, k=X, kcv=4, scale = TRUE) # use scaled data
+  pred <- as.integer(model[[1]][,2] + 0.5)
+  acc[X] <- sum(pred == data$V11) / nrow(data) # test knn with X neighbors
+}
+
+#
+# report accuracies
+#
+
+acc
+print(which.max(acc))
+print(max(acc))

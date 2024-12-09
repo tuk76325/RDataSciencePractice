@@ -1,0 +1,23 @@
+rm(list=ls())
+library(glmnet)
+
+data <- as.matrix(read.table("uscrime.txt", header=TRUE))
+data <- scale(data, center=TRUE, scale=TRUE)
+
+x <- data[, -16]
+y <- data[, ncol(data)]
+
+#k-fold cross-validation to find optimal lambda value
+m <- cv.glmnet(x, y, alpha = 1)
+
+#minimizes MSE to find best lambda
+lambda <- m$lambda.min
+lambda
+
+#make final model with best lambda value
+mFinal <- glmnet(x, y, alpha = 1, lambda = lambda)
+
+mFinal
+coef(mFinal)
+
+coefplot(mFinal, lambda=lambda, sort="magnitude")

@@ -1,0 +1,26 @@
+rm(list = ls())
+
+set.seed(694)
+
+library(randomForest)
+
+data <- read.table("uscrime.txt", header=TRUE)
+
+m1 <- randomForest(
+  formula = Crime ~.,
+  data = data
+)
+
+m1
+plot(m1)
+
+which.min(m1$mse)
+sqrt(m1$mse[which.min(m1$mse)])
+
+m1pred <- predict(m1)
+summary(m1pred)
+
+SSE <- sum((m1pred-data$Crime)^2)
+totalSS <- sum((data$Crime - mean(data$Crime))^2)
+Rsquare <- 1 - SSE/totalSS
+Rsquare

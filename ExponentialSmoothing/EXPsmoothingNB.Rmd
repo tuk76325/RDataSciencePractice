@@ -1,0 +1,32 @@
+rm(list=ls())
+
+set.seed(694)
+
+data <- read.table("temps.txt", header=TRUE)
+df <- data.frame(data)
+
+newData <- as.matrix(data[,2:21])
+tsData <- ts(newData, start=1996, frequency=123)
+
+winter1 <- HoltWinters(tsData, beta=FALSE, gamma=FALSE)
+winter2 <- HoltWinters(tsData, gamma=FALSE)
+winter3 <- HoltWinters(tsData)
+
+par(mfrow=c(3,1))
+
+plot(winter1)
+plot(winter2)
+plot(winter3)
+
+#print(winter3$fitted[,4], ncol=123)
+
+cusumMatrix <- matrix(winter3$fitted[,4], ncol=123)
+cusumObj <- cumsum(cusumMatrix)
+
+plot(x=1:length(cusumObj), y=cusumObj, ylab="Cumulative Sum", xlab="Full Length of Data", type="o")
+
+#print(winter1)
+#print("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
+#print(winter2)
+#print("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
+#print(winter3)

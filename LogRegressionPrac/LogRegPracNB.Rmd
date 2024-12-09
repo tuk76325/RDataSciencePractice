@@ -1,0 +1,37 @@
+set.seed(694)
+
+data <- read.table("uscrime.txt", header=TRUE)
+
+library(rsample)    
+library(rpart)       
+library(rpart.plot)  
+
+#The following block of code for splitting the data is omitted as per caption in Figure 3.
+
+split <- initial_split(data, prop=0.7) #70/30 split of the train/test data respectively
+train <- training(split)
+test <- testing(split)
+
+m1 <- rpart(
+  formula = Crime ~ .,
+  data    = data,
+  method  = "anova"
+  )
+
+m1
+
+rpart.plot(m1)
+
+plotcp(m1)
+
+m1pred <- predict(m1)
+
+summary(m1pred)
+
+SSE <- sum((m1pred-data$Crime)^2)
+
+SSE
+
+SStot <- sum((data$Crime - mean(data$Crime))^2)
+R2 <- 1 - SSE/SStot
+R2

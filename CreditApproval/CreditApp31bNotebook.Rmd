@@ -1,0 +1,42 @@
+rm(list = ls())
+library(kknn)
+library(splitTools)
+set.seed(694)
+
+data <- read.table("credit_card_data.txt", stringsAsFactors = FALSE, header = FALSE)
+
+shuffled_data = data[sample(1:nrow(data)),] 
+
+sample <- sample(c(TRUE, FALSE), nrow(shuffled_data), replace=TRUE, prob=c(0.7,0.3))
+train  <- shuffled_data[sample, ]
+testTemp   <- shuffled_data[!sample, ]
+
+splt <- sample(c(TRUE, FALSE), nrow(testTemp), replace=TRUE, prob=c(0.5,0.5))
+
+validation <- testTemp[splt, ]
+test <- testTemp[!splt, ]
+
+acc <- rep(0,25)
+
+for (i in 1:25) {
+  
+  model <- kknn(V11~V1+V2+V3+V4+V5+V6+V7+V8+V9+V10, train=train, test=validation, k=i, scale = TRUE) # use scaled data
+  pred <- as.integer(fitted(model)+0.5)
+  acc[i] <- sum(pred == validation$V11)/nrow(validation) 
+}
+
+#
+# report accuracies
+#
+
+acc[1:25]
+maxK <- which.max(acc[1:25]) #max value of k to be used in testing set
+print(maxK)
+
+finalModel <- kknn(V11~V1+V2+V3+V4+V5+V6+V7+V8+V9+V10, train=train, test=test, k=maxK, scale = TRUE) # use scaled data
+finalPred <- as.integer(fitted(finalModel)+0.5)
+finalAcc <- sum(finalPred == test$V11)/nrow(test)
+
+finalAcc
+  
+  

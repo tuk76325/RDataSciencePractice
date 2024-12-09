@@ -1,0 +1,19 @@
+rm(list=ls())
+data <- read.table("uscrime.txt", header=TRUE)
+
+m <- lm(Crime ~ ., data=data)
+m
+
+mForward <- step(m, direction = "forward", scope = formula(~ .))
+mForward
+
+par(mfrow = c(1, 2))
+
+# Forward stepwise regression residuals
+plot(mForward$residuals, main = "Forward Residuals", ylab = "Residuals")
+
+# Backward stepwise regression residuals
+plot(mBackward$residuals, main = "Backward Residuals", ylab = "Residuals")
+
+mBackward <- step(m, direction = "backward")
+mBackward

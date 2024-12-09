@@ -1,0 +1,22 @@
+library(ggplot2)
+library(outliers)
+
+set.seed(694)
+
+data <- read.table("uscrime.txt", header=TRUE)
+
+highOut <- grubbs.test(data[,ncol(data)], type=10, opposite = FALSE, two.sided = FALSE)
+print(highOut)
+
+lowOut <- grubbs.test(data[,ncol(data)], type=10, opposite = TRUE, two.sided = FALSE)
+print(lowOut)
+
+# boxplot(data$Crime)
+
+y <- data$Crime
+df <- data.frame(y)
+
+ggplot(df, aes(x=factor(0), y)) + 
+  geom_boxplot(outlier.colour="red", outlier.shape=4, outlier.size=4) +
+  theme(axis.title.x = element_blank()) 
+

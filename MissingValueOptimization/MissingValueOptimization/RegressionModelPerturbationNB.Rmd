@@ -1,0 +1,52 @@
+rm(list = ls())
+
+data <- read.csv("breast-cancer-wisconsin.data.txt", header=FALSE, na.strings="?")
+
+imputedMice <- data.frame(
+  originalData = data$V7,
+  imputedLm = complete(mice(data, method = "norm.nob"))$V7,
+  imputedCART = complete(mice(data, method = "cart"))$V7,
+  imputedLASSO = complete(mice(data, method = "lasso.norm"))$V7,
+  imputedPMM = complete(mice(data, method = "pmm"))$V7
+)
+
+h1 <- ggplot(imputedMice, aes(x = originalData)) +
+  geom_histogram(fill = "#ad1538", color = "#000000", position = "identity", bins=8) +
+  ggtitle("Original distribution") + stat_bin(aes(label=..count..), geom="text", bins=8,         position=position_stack(vjust=0.5)) +
+  theme_classic()
+  
+h2 <- ggplot(imputedMice, aes(x = imputedLm)) +
+  geom_histogram(fill = "#15ad4f", color = "#000000", position = "identity", bins=8) +
+  ggtitle("LinearReg-imputed distribution") + stat_bin(aes(label=..count..), geom="text", bins=8,         position=position_stack(vjust=0.5)) +
+  theme_classic()
+  
+h3 <- ggplot(imputedMice, aes(x = imputedCART)) +
+  geom_histogram(fill = "#ad8415", color = "#000000", position = "identity", bins=8) +
+  ggtitle("CART-imputed distribution") + stat_bin(aes(label=..count..), geom="text", bins=8,         position=position_stack(vjust=0.5)) +
+  theme_classic()
+  
+h4 <- ggplot(imputedMice, aes(x = imputedLASSO)) +
+  geom_histogram(fill = "#ADD8E6", color = "#000000", position = "identity", bins=8) +
+  ggtitle("LASSO-imputed distribution") + stat_bin(aes(label=..count..), geom="text", bins=8,         position=position_stack(vjust=0.5)) +
+  theme_classic()
+  
+h5 <- ggplot(imputedMice, aes(x = imputedPMM)) +
+  geom_histogram(fill = "#FFC1CC", color = "#000000", position = "identity", bins=8) +
+  ggtitle("PMM-imputed distribution") + stat_bin(aes(label=..count..), geom="text", bins=8,         position=position_stack(vjust=0.5)) +
+  theme_classic()
+  
+ggarrange(h1, h2, h3, h4, h5, ncol=2, nrow=3)
+
+
+data2 <- read.csv("breast-cancer-wisconsin.data.txt", header=FALSE)
+
+missing <- which(data2$V7 == "?", arr.ind = TRUE)
+
+data2[is.na(data)] <- mean(data$V7, na.rm = TRUE) #gets mean of V7 and substitutes
+
+linearModel <- lm(V7~V2+V3+V4+V5+V6+V8+V9+V10, data=data2)
+linearModelV7 <- predict(linearModel, newdata=data[missing,])
+
+perturbedData <- rnorm(nrow(data2[missing,]), mean=linearModelV7, sd=sd(linearModelV7))
+perturbedData
+
